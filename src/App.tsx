@@ -7,51 +7,81 @@ import { ReviewCard } from './components/ReviewCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Lock } from 'lucide-react';
 
-const mockReviews = [
-  {
-    author: 'María González',
-    rating: 2,
-    text: 'La comida estaba fría cuando llegó y el servicio a domicilio tardó más de lo prometido.',
-    date: '15 de marzo, 2024',
-    suggestion: 'Implementar un sistema de seguimiento de pedidos en tiempo real y mejorar la logística de entrega.',
-  },
-  {
-    author: 'Carlos Rodríguez',
-    rating: 1,
-    text: 'Pésima atención al cliente. El mesero fue muy descortés y la comida no justifica el precio.',
-    date: '12 de marzo, 2024',
-    suggestion: 'Realizar capacitación en servicio al cliente y revisar la estructura de precios.',
-  },
-  {
-    author: 'Ana Martínez',
-    rating: 2,
-    text: 'El local estaba sucio y la música demasiado alta. No volveré.',
-    date: '10 de marzo, 2024',
-  },
-  {
-    author: 'Pedro Sánchez',
-    rating: 1,
-    text: 'Esperé más de 45 minutos por mi pedido y cuando llegó estaba incompleto.',
-    date: '8 de marzo, 2024',
-  },
-  {
-    author: 'Laura Torres',
-    rating: 2,
-    text: 'La calidad ha bajado mucho últimamente. Los ingredientes no parecen frescos.',
-    date: '5 de marzo, 2024',
-  },
-];
+
+interface ReviewDetailedRating {
+  Food: number;
+  Service: string;
+  Atmosphere: string;
+}
+
+interface ReviewContext {
+  Service: string;
+  "Type of food": string;
+  "Price per customer": string;
+  Parking: string;
+}
+
+export interface ReviewText {
+  name: string;
+  date: string;
+  text: string;
+  stars: number;
+  reviewDetailedRating: ReviewDetailedRating;
+  reviewContext: ReviewContext;
+  reasons: string[];
+  improvements: string[];
+}
+
+interface ReviewResponse {
+  text: ReviewText;
+}
+
 
 function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [reviews, setReviews] = useState<ReviewResponse[]>([]);
+  const formattedReviews = reviews?.map(review => {
+    if (typeof review.text === "string") {
+      try {
+        return JSON.parse(review.text) as ReviewText;
+      } catch (error) {
+        console.error("Error parsing review text:", error);
+        return null; // Handle parsing errors gracefully
+      }
+    }
+    return review.text; // If it's already an object, return as is
+  }).filter(Boolean); // Remove null values
+
+  console.log('llalal', formattedReviews);
+
+  const [fetchError, setFetchError] = useState<boolean>(false);
+
+  const WEBHOOK_URL = "https://chirinosjor.app.n8n.cloud/webhook-test/cded8bc0-b628-441a-8165-d98043f92b96";
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsAnalyzing(false);
-    setShowReviews(true);
+    try {
+      const url = `${WEBHOOK_URL}?place_url=${searchValue}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      setReviews(data);
+      setIsAnalyzing(false);
+      setShowReviews(true);
+    } catch (error) {
+      console.error(error);
+      setFetchError(true);
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -74,7 +104,7 @@ function App() {
           </p>
 
           <div className="mt-12 flex flex-col items-center gap-8">
-            <SearchBar />
+            <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
             <Button className="group" onClick={handleAnalyze} disabled={isAnalyzing}>
               {isAnalyzing ? 'Analizando...' : 'Analizar Reseñas'}
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -88,6 +118,8 @@ function App() {
           <div className="h-[800px] w-[1200px] rounded-full bg-gradient-to-b from-primary/5 to-transparent blur-3xl" />
         </div>
       </section>
+
+      {fetchError && <div>Error al analizar la reseñas, intenta nuevamente más tarde.</div>}
 
       {/* Reviews Section */}
       <AnimatePresence>
@@ -104,7 +136,7 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showReviews && !isAnalyzing && (
+        {showReviews && !isAnalyzing && formattedReviews !== null && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -112,10 +144,10 @@ function App() {
             className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8"
           >
             <div className="grid gap-6">
-              {mockReviews.map((review, index) => (
+              {formattedReviews.map((review, index) => (
                 <ReviewCard
                   key={index}
-                  review={review}
+                  review={review as ReviewText}
                   isBlurred={index >= 2}
                 />
               ))}
