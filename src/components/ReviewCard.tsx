@@ -23,20 +23,26 @@ export function ReviewCard({ review, isBlurred = false }: ReviewCardProps) {
           {Array.from({ length: review.stars }).map((_, i) => (
             <Star
               key={i}
-              className="h-4 w-4 fill-yellow-400 text-yellow-400"
+              className="h-6 w-6 fill-yellow-400 text-yellow-400"
               strokeWidth={0}
             />
           ))}
         </div>
       </div>
       <p className="text-gray-700">{review.text}</p>
-      {review.improvements && (
+      {review?.improvements?.length > 0 ? (
         <div className="mt-4 rounded-md bg-success/10 p-4">
           <p className="text-sm font-medium text-success">
-            Sugerencia de IA: {review.improvements}
+            <span className='block'>Sugerencia de IA:</span> {review.improvements.map((improvement, i) => (
+              <span key={i} className='block'>- {improvement}</span>
+            ))}
           </p>
         </div>
-      )}
+      ) : <div className="mt-4 rounded-md bg-yellow-500/10 p-4">
+        <p className="text-sm font-medium text-yellow-500">
+          El usuario no dio información de para analizar
+        </p>
+      </div>}
     </motion.div>
   );
 }
