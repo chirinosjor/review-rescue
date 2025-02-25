@@ -8,7 +8,7 @@ import { ReviewText } from './lib/types';
 import LoadingSection from './components/SpinnerSection';
 
 function App() {
-  const [isAnalyzing, setIsAnalyzing] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [reviews, setReviews] = useState<ReviewText[]>([]);
