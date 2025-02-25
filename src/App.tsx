@@ -5,9 +5,8 @@ import { TrustIndicators } from './components/TrustIndicators';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ReviewCard } from './components/ReviewCard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Lock } from 'lucide-react';
-
-
+import { ArrowRight, Lock, AlertCircle } from 'lucide-react';
+//import { reviewsMock } from './lib/reviewsMock';
 interface ReviewDetailedRating {
   Food: number;
   Service: string;
@@ -43,22 +42,32 @@ function App() {
   const [searchValue, setSearchValue] = useState('');
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
   const formattedReviews = reviews?.map(review => {
+    // Check if the `text` property is a string
     if (typeof review.text === "string") {
       try {
-        return JSON.parse(review.text) as ReviewText;
-      } catch (error) {
-        console.error("Error parsing review text:", error);
-        return null; // Handle parsing errors gracefully
-      }
-    }
-    return review.text; // If it's already an object, return as is
-  }).filter(Boolean); // Remove null values
+        // Remove any potential Markdown code block syntax (e.g., ```json``` or ```)
+        const cleanedText = review.text as string;
+        const trimmedText = cleanedText.replace(/^\s+|\s+$/g, '');
 
-  console.log('llalal', formattedReviews);
+        // Parse the cleaned text into a JSON object
+        return JSON.parse(trimmedText) as ReviewText;
+      } catch (error) {
+        // Log the error and return null if parsing fails
+        console.error("Error parsing review text:", error);
+        return null;
+      }
+    } else if (typeof review.text === "object") {
+      // If `text` is already an object, return it as is
+      return review.text;
+    } else {
+      // If `text` is neither a string nor an object, return null
+      return null;
+    }
+  }).filter(Boolean); // Remove null values from the final array
 
   const [fetchError, setFetchError] = useState<boolean>(false);
 
-  const WEBHOOK_URL = "https://chirinosjor.app.n8n.cloud/webhook-test/cded8bc0-b628-441a-8165-d98043f92b96";
+  const WEBHOOK_URL = "https://primary-production-7a540.up.railway.app/webhook-test/cded8bc0-b628-441a-8165-d98043f92b96";
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
@@ -135,6 +144,26 @@ function App() {
         )}
       </AnimatePresence>
 
+      {fetchError &&
+        <AnimatePresence>
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="mt-16"
+          >
+            <div className="mx-auto max-w-7xl flex items-center justify-center bg-red-100">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full  text-red-800">
+                <AlertCircle className="h-6 w-6 text-red-600" strokeWidth={1} />
+              </div>
+              <div className="text-center text-sm text-red-700">
+                <p>Error al analizar la reseñas, intenta nuevamente más tarde.</p>
+              </div>
+            </div>
+          </motion.section>
+        </AnimatePresence>
+      }
+
       <AnimatePresence>
         {showReviews && !isAnalyzing && formattedReviews !== null && (
           <motion.section
@@ -144,6 +173,9 @@ function App() {
             className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8"
           >
             <div className="grid gap-6">
+              <h1 className="text-2xl font-bold">
+                {formattedReviews.length} resultados
+              </h1>
               {formattedReviews.map((review, index) => (
                 <ReviewCard
                   key={index}

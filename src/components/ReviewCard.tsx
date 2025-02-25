@@ -29,7 +29,18 @@ export function ReviewCard({ review, isBlurred = false }: ReviewCardProps) {
           ))}
         </div>
       </div>
-      <p className="text-gray-700">{review.text}</p>
+      {review.text?.length > 0 ?
+        <p className="text-gray-700">{review.text}</p>
+        : null}
+      {review.reasons?.length > 0 ? (
+        <div className="mt-4 rounded-md bg-yellow-700/10 p-4">
+          <p className="text-sm font-medium text-yellow-700">
+            <span className='block'>Motivos:</span> {review.reasons.map((reason, i) => (
+              <span key={i} className='block'>- {reason}</span>
+            ))}
+          </p>
+        </div>
+      ) : null}
       {review?.improvements?.length > 0 ? (
         <div className="mt-4 rounded-md bg-success/10 p-4">
           <p className="text-sm font-medium text-success">
@@ -38,8 +49,8 @@ export function ReviewCard({ review, isBlurred = false }: ReviewCardProps) {
             ))}
           </p>
         </div>
-      ) : <div className="mt-4 rounded-md bg-yellow-500/10 p-4">
-        <p className="text-sm font-medium text-yellow-500">
+      ) : <div className="mt-4 rounded-md bg-gray-700/10 p-4">
+        <p className="text-sm font-medium text-gray-700">
           El usuario no dio información de para analizar
         </p>
       </div>}
