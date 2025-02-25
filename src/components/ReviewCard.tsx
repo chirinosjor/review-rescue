@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-import { ReviewText } from '../App';
+import { ReviewText } from '../lib/types';
 interface ReviewCardProps {
   review: ReviewText;
   isBlurred?: boolean;
