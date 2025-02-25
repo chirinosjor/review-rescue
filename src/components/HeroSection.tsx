@@ -33,7 +33,7 @@ function HeroSection({ searchValue, setSearchValue, isAnalyzing, handleAnalyze }
         <div className="mt-12 flex flex-col items-center gap-8">
           <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
           <Button className="group" onClick={handleAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing ? 'Analizando...' : 'Analizar Reseñas'}
+            Analizar Reseñas
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>

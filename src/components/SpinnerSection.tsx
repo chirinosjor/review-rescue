@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import LoadingState from './LoadingState';
 
-function SpinnerSection() {
+function LoadingSection() {
   return (
     <AnimatePresence>
       <motion.section
@@ -10,10 +10,10 @@ function SpinnerSection() {
         exit={{ opacity: 0 }}
         className="mt-16"
       >
-        <LoadingSpinner />
+        <LoadingState />
       </motion.section>
     </AnimatePresence>
   );
 }
 
-export default SpinnerSection;
+export default LoadingSection;
