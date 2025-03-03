@@ -3,16 +3,14 @@ import { Star } from 'lucide-react';
 import { ReviewText } from '../lib/types';
 interface ReviewCardProps {
   review: ReviewText;
-  isBlurred?: boolean;
 }
 
-export function ReviewCard({ review, isBlurred = false }: ReviewCardProps) {
+export function ReviewCard({ review }: ReviewCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-lg bg-white p-6 shadow-card ${isBlurred ? 'blur-sm pointer-events-none' : ''
-        }`}
+      className="rounded-lg bg-white p-6 shadow-card"
     >
       <div className="mb-4 flex items-center justify-between">
         <div>
