@@ -9,8 +9,7 @@ interface useReviewsProps {
 }
 
 export function useReviews({ searchValue, setReviews, setIsAnalyzing, setShowReviews, setFetchError }: useReviewsProps) {
-  const WEBHOOK_URL = "https://primary-production-7a540.up.railway.app/webhook-test/cded8bc0-b628-441a-8165-d98043f92b96";
-
+  const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL;
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     setFetchError(false);
